@@ -1,0 +1,27 @@
+VN PC
+ssh yahweh@113.161.41.65 -p 3389
+
+
+Test Server 52.69.74.220 	
+alphah-new-key
+ssh -i ~/aws-pem/alphah-new-key.pem ubuntu@52.69.74.220         
+
+BEN Strategy 54.248.113.120
+alphah-amazon-vps
+ssh -i ~/aws-pem/alphah-amazon-vps.pem ubuntu@54.248.113.120
+
+DEV Testing 35.79.160.75
+alphah-amazon-vps
+ssh -i ~/aws-pem/alphah-amazon-vps.pem ubuntu@35.79.160.75
+
+BEN AI Server 13.113.168.228
+alphah-amazon-vps
+ssh -i ~/aws-pem/alphah-amazon-vps.pem ubuntu@13.113.168.228
+
+BEN Scanner 35.78.181.55
+alphah-amazon-vps
+ssh -i ~/aws-pem/alphah-amazon-vps.pem ubuntu@35.78.181.55
+
+BEN Order TraderView 35.78.188.228
+alphah-amazon-vps
+ssh -i ~/aws-pem/alphah-amazon-vps.pem ubuntu@35.78.188.228
