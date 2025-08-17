@@ -624,6 +624,7 @@ class DriftCompensatingOptimizer:
         retry = 0
         consecutive_failures = 0
         no_improvement_count = 0  # Track tests with no significant improvement
+        max_retries_before_reset = 10  # Reset network after 10 retries
         
         while True:  # Keep retrying indefinitely
             if self.abort_testing:
@@ -631,6 +632,16 @@ class DriftCompensatingOptimizer:
             
             if retry > 0:
                 print(f"    Retry {retry} (will keep trying until successful)...")
+                
+                # Check if we've hit the retry limit and should reset
+                if retry >= max_retries_before_reset:
+                    print(f"    ⚠️ Hit {max_retries_before_reset} retries, triggering network reset...")
+                    self.perform_network_reset()
+                    retry = 0  # Reset retry counter after network reset
+                    consecutive_failures = 0
+                    no_improvement_count = 0
+                    continue
+                
                 # Use good baseline if we have it, otherwise current baseline
                 expected = self.good_baseline if self.good_baseline else self.baseline_cache.get('baseline', 500)
                 stable_latency = self.wait_for_stability(expected)
