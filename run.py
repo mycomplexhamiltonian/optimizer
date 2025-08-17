@@ -52,6 +52,7 @@ class DriftCompensatingOptimizer:
         self.last_reset_time = 0   # Track when we last did a reset
         self.results_file = None  # Real-time results file
         self.test_start_time = time.time()  # Track when testing started
+        self.skipped_optimizations = []  # Track which optimizations were skipped
         
         # COMPLETE list of optimizations with priority levels
         self.all_optimizations = {
@@ -625,6 +626,8 @@ class DriftCompensatingOptimizer:
         consecutive_failures = 0
         no_improvement_count = 0  # Track tests with no significant improvement
         max_retries_before_reset = 10  # Reset network after 10 retries
+        apply_failures = 0  # Track failures to apply settings
+        max_apply_failures = 3  # Skip setting after 3 failed attempts to apply
         
         while True:  # Keep retrying indefinitely
             if self.abort_testing:
@@ -659,6 +662,11 @@ class DriftCompensatingOptimizer:
             # A1: First baseline
             if not self.apply_setting(opt_name, original):
                 print(f"    Failed to apply original setting: {original}")
+                apply_failures += 1
+                if apply_failures >= max_apply_failures:
+                    print(f"    ⚠️ Skipping {opt_name}: Unable to apply settings (incompatible or requires different permissions)")
+                    self.skipped_optimizations.append((opt_name, "Cannot apply original setting"))
+                    return None, None  # Skip this optimization entirely
                 retry += 1
                 continue
                 
@@ -669,6 +677,7 @@ class DriftCompensatingOptimizer:
                 retry += 1
                 continue
             print(f" {baseline_a1['p50']:.1f}μs")
+            apply_failures = 0  # Reset counter after successful apply and measure
             
             # Check if baseline is in bad state
             if self.good_baseline and baseline_a1['p50'] > self.good_baseline * INSTABILITY_THRESHOLD:
@@ -685,6 +694,11 @@ class DriftCompensatingOptimizer:
             # B1: First test value measurement
             if not self.apply_setting(opt_name, test_value):
                 print(f"    Failed to apply test setting: {test_value}")
+                apply_failures += 1
+                if apply_failures >= max_apply_failures:
+                    print(f"    ⚠️ Skipping {opt_name}: Unable to apply test value {test_value}")
+                    self.skipped_optimizations.append((opt_name, f"Cannot apply test value: {test_value}"))
+                    return None, None  # Skip this optimization entirely
                 retry += 1
                 continue
                 
@@ -1123,6 +1137,17 @@ class DriftCompensatingOptimizer:
         print("\n" + "="*80)
         print("📈 OPTIMIZATION REPORT")
         print("="*80)
+        
+        # Report skipped optimizations first
+        if self.skipped_optimizations:
+            print("\n⚠️ SKIPPED OPTIMIZATIONS:")
+            print("-"*60)
+            for opt_name, reason in self.skipped_optimizations:
+                config = self.optimizations[opt_name]
+                priority = config.get('priority', 3)
+                pri_label = ['HIGH', 'MED', 'LOW'][priority-1]
+                print(f"  [{pri_label}] {opt_name}: {reason}")
+            print()
         
         if optimal_settings:
             print("\n✅ IMPROVEMENTS FOUND:")
