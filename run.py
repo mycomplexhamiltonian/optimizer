@@ -658,13 +658,14 @@ class DriftCompensatingOptimizer:
             
             # A1: First baseline
             if not self.apply_setting(opt_name, original):
+                print(f"    Failed to apply original setting: {original}")
                 retry += 1
                 continue
                 
             print(f"    A1 (baseline)...", end='', flush=True)
             baseline_a1 = self.measure_latency()
             if not baseline_a1:
-                print(" Failed")
+                print(" Failed to measure")
                 retry += 1
                 continue
             print(f" {baseline_a1['p50']:.1f}μs")
@@ -683,52 +684,56 @@ class DriftCompensatingOptimizer:
             
             # B1: First test value measurement
             if not self.apply_setting(opt_name, test_value):
+                print(f"    Failed to apply test setting: {test_value}")
                 retry += 1
                 continue
                 
             print(f"    B1 ({test_value})...", end='', flush=True)
             test_b1 = self.measure_latency()
             if not test_b1:
-                print(" Failed")
+                print(" Failed to measure")
                 retry += 1
                 continue
             print(f" {test_b1['p50']:.1f}μs")
             
             # A2: Second baseline
             if not self.apply_setting(opt_name, original):
+                print(f"    Failed to apply original setting (A2): {original}")
                 retry += 1
                 continue
                 
             print(f"    A2 (baseline)...", end='', flush=True)
             baseline_a2 = self.measure_latency()
             if not baseline_a2:
-                print(" Failed")
+                print(" Failed to measure")
                 retry += 1
                 continue
             print(f" {baseline_a2['p50']:.1f}μs")
             
             # B2: Second test value measurement
             if not self.apply_setting(opt_name, test_value):
+                print(f"    Failed to apply test setting (B2): {test_value}")
                 retry += 1
                 continue
                 
             print(f"    B2 ({test_value})...", end='', flush=True)
             test_b2 = self.measure_latency()
             if not test_b2:
-                print(" Failed")
+                print(" Failed to measure")
                 retry += 1
                 continue
             print(f" {test_b2['p50']:.1f}μs")
             
             # A3: Third baseline
             if not self.apply_setting(opt_name, original):
+                print(f"    Failed to apply original setting (A3): {original}")
                 retry += 1
                 continue
                 
             print(f"    A3 (baseline)...", end='', flush=True)
             baseline_a3 = self.measure_latency()
             if not baseline_a3:
-                print(" Failed")
+                print(" Failed to measure")
                 retry += 1
                 continue
             print(f" {baseline_a3['p50']:.1f}μs")
